@@ -6,14 +6,13 @@ const NotFoundError = require('../errors/not-found-err');
 const InvalidDataError = require('../errors/invalid-data');
 const AuthError = require('../errors/auth-failure');
 const UserExistsError = require('../errors/user-exists');
-
-const { JWT_SECRET = 'default-secret-key' } = process.env;
+const { userNotFound, invalidUserEmail, invalidUserData } = require('../utils/errorConsts');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден.');
+        throw new NotFoundError(userNotFound);
       }
       res.send(user);
     })
@@ -21,17 +20,17 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.updateProfile = (req, res, next) => {
-  const { name } = req.body;
+  const { name, email } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { name },
+    { name, email },
     { new: true, runValidators: true },
   )
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        throw new NotFoundError('Пользователь не найден.');
+        throw new NotFoundError(userNotFound);
       }
     })
     .catch((err) => next(err));
@@ -40,14 +39,14 @@ module.exports.updateProfile = (req, res, next) => {
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
   if (!validator.isEmail(email)) {
-    throw new InvalidDataError('Невалидная почта');
+    throw new InvalidDataError(invalidUserEmail);
   }
   bcrypt.hash(password, 10)
     .then((hash) => User.create({ email, password: hash, name }))
     .then((user) => res.send({ email: user.email, name: user.name }))
     .catch((err) => {
       if (err.name === 'ValidationError' && err.name === 'CastError') {
-        next(new InvalidDataError('Невалидные данные пользователя'));
+        next(new InvalidDataError(invalidUserData));
         return;
       }
       if (err.name === 'MongoError' && err.code === 11000) {
@@ -76,7 +75,15 @@ module.exports.login = (req, res, next) => {
       if (!matched) {
         throw new AuthError();
       }
-      return res.send({ token: jwt.sign({ _id: userTemp._id }, JWT_SECRET, { expiresIn: 3600 }) });
+      return res.send(
+        {
+          token: jwt.sign(
+            { _id: userTemp._id },
+            process.env.JWT_SECRET,
+            { expiresIn: 3600 },
+          ),
+        },
+      );
     })
     .catch((err) => next(err));
 };

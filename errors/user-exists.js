@@ -1,6 +1,8 @@
+const { emailAlreadyExists } = require('../utils/errorConsts');
+
 class UserExistsError extends Error {
   constructor() {
-    super('Пользователь с такой почтой уже существует.');
+    super(emailAlreadyExists);
     this.statusCode = 409;
   }
 }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const isURL = require('validator/lib/isURL');
+const { invalidMovieCoverUrl, invalidMovieCoverMiniUrl, invalidMovieTrailerUrl } = require('../utils/errorConsts');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -37,7 +38,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (imageURL) => isURL(imageURL),
-      message: 'Невалидный адрес обложки фильма',
+      message: invalidMovieCoverUrl,
       require_protocol: true,
     },
   },
@@ -46,7 +47,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (trailerURL) => isURL(trailerURL),
-      message: 'Невалидный адрес трейлера',
+      message: invalidMovieTrailerUrl,
       require_protocol: true,
     },
   },
@@ -55,7 +56,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (thumbnailURL) => isURL(thumbnailURL),
-      message: 'Невалидный адрес мини обложки фильма',
+      message: invalidMovieCoverMiniUrl,
       require_protocol: true,
     },
   },
@@ -65,9 +66,8 @@ const movieSchema = new mongoose.Schema({
     required: true,
   },
   movieId: {
-    type: String,
-    minlength: 2,
-    maxlength: 150,
+    type: Number,
+    min: 0,
     required: true,
   },
   nameRU: {

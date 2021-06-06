@@ -2,6 +2,9 @@ const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-err');
 const AccessDeniedError = require('../errors/access-denied');
 const InvalidDataError = require('../errors/invalid-data');
+const {
+  invalidMovieData, movieNotFound, accessDenied, movieDeleteProblem,
+} = require('../utils/errorConsts');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -32,7 +35,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError' && err.name === 'CastError') {
-        next(new InvalidDataError('Невалидные данные фильма'));
+        next(new InvalidDataError(invalidMovieData));
         return;
       }
       next(err);
@@ -40,25 +43,24 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  console.log(req.params.movieId);
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Фильм не найден.');
+        throw new NotFoundError(movieNotFound);
       }
       return movie;
     })
     .then((movie) => {
       if (movie.owner.toString() !== req.user._id) {
-        throw new AccessDeniedError('Отказано в доступе.');
+        throw new AccessDeniedError(accessDenied);
       }
-      return Movie.deleteOne(movie);
+      return Movie.deleteOne({ _id: movie._id });
     })
     .then((deleteResult) => {
       if (deleteResult.deletedCount === 1) {
         res.send(deleteResult);
       } else {
-        const err = new Error('Ошибка при удалении фильма.');
+        const err = new Error(movieDeleteProblem);
         err.statusCode = 500;
         throw err;
       }
