@@ -68,8 +68,8 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-config.env.*
+# dotenv environment prod config file, dev included
+config.env.prod
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
