@@ -7,10 +7,8 @@ const { errors } = require('celebrate');
 const rateLimit = require('./utils/rateLimmiter');
 const router = require('./routes/index');
 const { centrolizedErrorHandling } = require('./errors/centrolizedErrorHandling');
-const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const urls = require('./utils/addressConsts');
-const { pageNotFound } = require('./utils/errorConsts');
 
 const { NODE_ENV = 'dev' } = process.env; // 'config.env.dev' and 'config.env.prod'
 require('dotenv').config({ path: `config.env.${NODE_ENV}` });
@@ -40,8 +38,6 @@ app.use(router);
 app.use(errorLogger);
 
 app.use(errors());
-
-app.use((req, res, next) => next(new NotFoundError(pageNotFound)));
 
 app.use(centrolizedErrorHandling);
 

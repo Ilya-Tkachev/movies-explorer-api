@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const auth = require('../middlewares/auth');
 const { createUser, login } = require('../controllers/users');
+const NotFoundError = require('../errors/not-found-err');
+const { pageNotFound } = require('../utils/errorConsts');
 
 router.post(
   '/signup',
@@ -29,5 +31,7 @@ router.post(
 router.use(auth);
 router.use('/users', require('./users'));
 router.use('/movies', require('./movies'));
+
+router.use((req, res, next) => next(new NotFoundError(pageNotFound)));
 
 module.exports = router;
