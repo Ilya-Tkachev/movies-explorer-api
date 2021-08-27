@@ -22,7 +22,7 @@ router.post(
         if (validator.isURL(url, { require_protocol: true })) return url;
         throw new InvalidDataError(invalidMovieCoverUrl);
       }),
-      trailer: Joi.string().required().custom((url) => {
+      trailerLink: Joi.string().required().custom((url) => {
         if (validator.isURL(url, { require_protocol: true })) return url;
         throw new InvalidDataError(invalidMovieCoverMiniUrl);
       }),

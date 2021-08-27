@@ -42,7 +42,7 @@ const movieSchema = new mongoose.Schema({
       require_protocol: true,
     },
   },
-  trailer: {
+  trailerLink: {
     type: String,
     required: true,
     validate: {

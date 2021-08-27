@@ -9,14 +9,17 @@ const {
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
     .populate('user')
-    .then((cards) => res.send(cards))
+    .then((movies) => {
+      const moviesOfThisUser = movies.filter((movie) => movie.owner.toString() === req.user._id);
+      res.send(moviesOfThisUser);
+    })
     .catch((err) => next(err));
 };
 
 module.exports.createMovie = (req, res, next) => {
   const {
     country, director, duration, year, description, image,
-    trailer, thumbnail, movieId, nameRU, nameEN,
+    trailerLink, thumbnail, movieId, nameRU, nameEN,
   } = req.body;
   Movie.create({
     country,
@@ -25,7 +28,7 @@ module.exports.createMovie = (req, res, next) => {
     year,
     description,
     image,
-    trailer,
+    trailerLink,
     thumbnail,
     owner: req.user._id,
     movieId,
